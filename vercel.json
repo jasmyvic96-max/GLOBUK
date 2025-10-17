@@ -1,16 +1,17 @@
 {
   "version": 2,
-  "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/sign-up", "dest": "/signup.html" },
-    { "src": "/login", "dest": "/login.html" },
-    { "src": "/dashboard", "dest": "/dashboard.html" },
-    { "src": "/history", "dest": "/history.html" },
-    { "src": "/my-applications", "dest": "/my-applications.html" },
-    { "src": "/grants-submission", "dest": "/grants-submission.html" },
-    { "src": "/awaiting", "dest": "/awaiting.html" },
-    { "src": "/approved", "dest": "/approved.html" },
-    { "src": "/terms", "dest": "/terms.html" },
-    { "src": "/privacy", "dest": "/privacy.html" }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/sign-up", "destination": "/signup.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/history", "destination": "/history.html" },
+    { "source": "/my-applications", "destination": "/my-applications.html" },
+    { "source": "/grants-submission", "destination": "/grants-submission.html" },
+    { "source": "/awaiting", "destination": "/awaiting.html" },
+    { "source": "/approved", "destination": "/approved.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/privacy", "destination": "/privacy.html" }
   ]
 }
