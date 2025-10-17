@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Grant Applications - GLOBUK</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Inter, system-ui, Arial;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #0b2540, #0f3b63 60%, #123a66);
+      color: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 8px 12px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.1);
+      font-weight: 500;
+    }
+
+    td input[type="radio"] {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+      thead tr { display: none; }
+      tr { border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; padding: 5px; }
+      td { display: flex; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      td::before { content: attr(data-label); font-weight: 600; }
+      td:last-child { justify-content: center; }
+    }
+
+    .btn-primary {
+      padding: 10px 16px;
+      background: linear-gradient(45deg, #1e40af, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .main-content {
+      max-width: 980px;
+      margin: 20px auto;
+      padding: 16px;
+    }
+
+    .main-header {
+      margin-bottom: 16px;
+    }
+
+    .submissions-table {
+      margin-bottom: 20px;
+    }
+
+    table tr {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+
+    table tr:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Sidebar tweaks */
+    .mobile-sidebar {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .mobile-sidebar-header h2 {
+      color: #fff;
+    }
+
+    .mobile-menu li a.active {
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+  <aside class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-header">
+      <h2><i class="fas fa-bolt"></i> GLOBUK</h2>
+      <button id="closeSidebar"><i class="fas fa-times"></i></button>
+    </div>
+    <ul class="mobile-menu">
+      <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li><a href="grant-submission.html" class="active"><i class="fas fa-file-alt"></i> Submit Grant Appeal</a></li>
+      <li><a href="my-applications.html"><i class="fas fa-list"></i> My Applications</a></li>
+      <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <button class="mobile-menu-btn" id="openSidebar"><i class="fas fa-bars"></i></button>
+
+  <main class="main-content">
+    <header class="main-header">
+      <h1>My Grant Applications</h1>
+      <p>Review your submitted grants and pay the Processing & Verification Fee.</p>
+    </header>
+
+    <section class="submissions-table">
+      <table>
+        <tbody id="grantTableBody">
+          <!-- Dynamically filled -->
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fee-section">
+      <button id="payFeeBtn" class="btn-primary">Pay Processing & Verification Fee</button>
+    </section>
+  </main>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const grantTableBody = document.getElementById('grantTableBody');
+    const payFeeBtn = document.getElementById('payFeeBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    let userGrants = [];
+
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => window.location.href = 'login.html');
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = 'login.html';
+
+      // Fetch all user's grants
+      const grantsQuery = query(collection(db, "grants"), where("uid", "==", user.uid));
+      const grantsSnapshot = await getDocs(grantsQuery);
+
+      // Fetch all assessments by this user
+      const assessmentsQuery = query(collection(db, "assessments"), where("uid", "==", user.uid));
+      const assessmentsSnapshot = await getDocs(assessmentsQuery);
+      const assessedGrantIds = assessmentsSnapshot.docs.map(doc => doc.data().grantId);
+
+      userGrants = [];
+      grantTableBody.innerHTML = "";
+
+      grantsSnapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        data.id = docSnap.id;
+
+        // Skip grants that already have an assessment
+        if (assessedGrantIds.includes(data.id)) return;
+
+        userGrants.push(data);
+
+        const requested = Number(data.amount || 0);
+        const fee = (requested * 0.10).toFixed(2);
+        const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : "—";
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Sector">${data.sector || "—"}</td>
+          <td data-label="Occupation">${data.occupation || "—"}</td>
+          <td data-label="Requested Amount">£${requested}</td>
+          <td data-label="Status">${data.status || "Pending"}</td>
+          <td data-label="Submitted On">${date}</td>
+          <td data-label="Processing Fee">£${fee}</td>
+          <td data-label="Select"><input type="radio" name="selectedGrant" value="${data.id}"></td>
+        `;
+        grantTableBody.appendChild(row);
+      });
+
+      if (userGrants.length === 0) {
+        grantTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No grants available for submission. Check back later.</td></tr>`;
+      }
+    });
+
+    payFeeBtn.addEventListener('click', () => {
+      const selected = document.querySelector('input[name="selectedGrant"]:checked');
+      if (!selected) return alert("Please select a grant to pay the fee for.");
+      const grant = userGrants.find(g => g.id === selected.value);
+      const fee = (Number(grant.amount || 0) * 0.10).toFixed(2);
+      window.location.href = `checkout.html?grantId=${grant.id}&fee=${fee}`;
+    });
+
+    // Mobile sidebar toggle
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const mobileOverlay = document.getElementById('mobileNavOverlay');
+    const openBtn = document.getElementById('openSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+
+    openBtn.addEventListener('click', () => {
+      mobileSidebar.style.left = '0';
+      mobileOverlay.style.width = '100%';
+      mobileOverlay.style.opacity = '1';
+      mobileOverlay.style.visibility = 'visible';
+    });
+
+    function closeSidebar() {
+      mobileSidebar.style.left = '-250px';
+      mobileOverlay.style.width = '0';
+      mobileOverlay.style.opacity = '0';
+      mobileOverlay.style.visibility = 'hidden';
+    }
+    closeBtn.addEventListener('click', closeSidebar);
+    mobileOverlay.addEventListener('click', closeSidebar);
+  </script>
+</body>
+</html>

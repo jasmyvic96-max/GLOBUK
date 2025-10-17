@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Approved Grants — GLOBUK</title>
+
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg:#0b2540; --bg2:#0f3b63; --card:rgba(255,255,255,0.04);
+      --text:#e6eefc; --muted:rgba(255,255,255,0.78); --accent:#3b82f6;
+      font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;
+    }
+    body{
+      margin:0; min-height:100vh;
+      background:linear-gradient(135deg,var(--bg),var(--bg2) 60%, #123a66);
+      color:var(--text); -webkit-font-smoothing:antialiased;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* Layout */
+    .wrap{max-width:980px;margin:22px auto;padding:16px;}
+    .nav-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+    h1{font-size:1.4rem;margin:0}
+    .muted{color:var(--muted); margin-top:6px;}
+
+    /* Cards grid */
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-top:16px; }
+    .grant-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.12);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    .grant-row { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .g-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .g-meta { font-size:0.9rem; color:var(--muted); margin-bottom:10px; }
+    .g-amount { font-weight:700; color:var(--accent); }
+    .g-status { padding:6px 8px; border-radius:8px; font-size:0.85rem; background:rgba(59,130,246,0.12); color:#dbeafe; display:inline-block; }
+
+    .actions { margin-top:8px; display:flex; gap:8px; }
+    .btn { background:linear-gradient(45deg,#1e40af,#3b82f6); color:white; padding:8px 10px; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.9rem; display:inline-flex; gap:8px; align-items:center; }
+    .btn.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text); }
+
+    /* Empty state */
+    .empty {
+      margin-top:30px;
+      border-radius:12px;
+      padding:28px;
+      text-align:center;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,0.06), transparent 10%),
+        radial-gradient(circle at 80% 80%, rgba(59,130,246,0.04), transparent 10%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .empty h2 { margin:8px 0 6px; font-size:1.2rem; color:#eaf4ff; }
+    .empty p { color:var(--muted); max-width:680px; margin:0 auto 12px; }
+
+    /* Responsive */
+    @media (max-width:640px){
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav-row">
+      <div>
+        <h1>Approved Grants</h1>
+        <div class="muted">Grants that have been approved and are ready for disbursement or next steps.</div>
+      </div>
+      <div>
+        <a href="dashboard.html" class="btn secondary"><i class="fas fa-arrow-left"></i> Back</a>
+      </div>
+    </div>
+
+    <!-- content -->
+    <div id="content">
+      <div id="loading" class="muted">Loading approved grants…</div>
+
+      <div id="results" style="display:none;">
+        <div id="grid" class="grid"></div>
+        <div id="emptyState" style="display:none;" class="empty">
+          <!-- decorative svg icon -->
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" style="display:block;margin:0 auto 12px">
+            <circle cx="12" cy="12" r="10" stroke="rgba(59,130,246,0.18)" stroke-width="1.5" />
+            <path d="M7 12l3 3 7-7" stroke="#93c5fd" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2>No approved grants yet</h2>
+          <p>You don't have any approved grants at the moment. Once an application is approved it will appear here with disbursement instructions and next steps.</p>
+          <div style="margin-top:12px">
+            <a href="awaiting.html" class="btn"><i class="fas fa-file-alt"></i> View your processing Grants</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const loadingEl = document.getElementById('loading');
+    const resultsEl = document.getElementById('results');
+    const gridEl = document.getElementById('grid');
+    const emptyEl = document.getElementById('emptyState');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // optional logout button in nav (if present)
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        signOut(auth).then(() => window.location.href = 'login.html');
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        // Query grants where uid == user.uid and status == "Approved"
+        const grantsQuery = query(collection(db, 'grants'), where('uid', '==', user.uid), where('status', '==', 'Approved'));
+        const snapshot = await getDocs(grantsQuery);
+
+        loadingEl.style.display = 'none';
+        resultsEl.style.display = 'block';
+
+        if (snapshot.empty) {
+          emptyEl.style.display = 'block';
+          return;
+        }
+
+        // Build cards for each approved grant
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const id = docSnap.id;
+          const title = data.sector || data.occupation || 'Grant';
+          const amount = Number(data.amount || 0).toFixed(2);
+          const createdAt = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : (data.createdAt || '—');
+          const disbursementNote = data.disbursementNote || ''; // optional field for admin to include
+
+          const card = document.createElement('div');
+          card.className = 'grant-card';
+          card.innerHTML = `
+            <div class="grant-row">
+              <div style="flex:1">
+                <div class="g-title">${title}</div>
+                <div class="g-meta">Submitted: ${createdAt}</div>
+                <div class="g-meta">ID: <span style="font-family:monospace;color:var(--muted)">${id}</span></div>
+              </div>
+              <div style="text-align:right">
+                <div class="g-amount">£${amount}</div>
+                <div style="margin-top:8px"><span class="g-status">Approved</span></div>
+              </div>
+            </div>
+            <div class="g-meta" style="margin-top:10px">${disbursementNote ? disbursementNote : 'Disbursement instructions will appear here when available.'}</div>
+            <div class="actions">
+              <a class="btn" href="grant-submission.html?id=${id}"><i class="fas fa-eye"></i> View</a>
+              <a class="btn secondary" href="checkout.html?grantId=${id}"><i class="fas fa-money-check-alt"></i> Proceed</a>
+            </div>
+          `;
+          gridEl.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error('Error loading approved grants:', err);
+        loadingEl.textContent = 'Error loading approved grants. Try reloading the page.';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - GLOBUK</title>
+
+  <!-- Global & Signup Styles (reuse them for login too) -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="signup.css">
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="signup-container">
+    <div class="signup-card">
+      <div class="signup-header">
+        <h1>Welcome Back</h1>
+        <p>Log in to access your dashboard</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group password-input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="form-navigation">
+          <button type="submit" class="btn">Login</button>
+        </div>
+      </form>
+
+      <div class="signup-footer">
+        <p>Don’t have an account? <a href="sign-up.html">Sign Up</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Authentication -->
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const loginForm = document.getElementById("loginForm");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          alert("Please verify your email before logging in.Kindly check your spam folder too");
+          return;
+        }
+
+        alert("Login successful! Redirecting...");
+        setTimeout(() => {
+          window.location.href = "dashboard.html"; // ✅ send to dashboard
+        }, 1500);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

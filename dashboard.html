@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SwiftRemit Grants</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f7faff;
+      margin: 0;
+      color: #222;
+    }
+
+    .main-header {
+      background: #4A90E2;
+      color: white;
+      padding: 20px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .main-header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .main-header p {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border-top: 4px solid #4A90E2;
+    }
+
+    .card h3 {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #4A90E2;
+      margin: 0;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px;
+    }
+
+    .table-header h2 {
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .btn-primary {
+      background: #4A90E2;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #357ABD;
+    }
+
+    table {
+      width: 95%;
+      margin: 0 auto 30px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 10px 14px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    th {
+      background: #4A90E2;
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background: #f0f6ff;
+    }
+
+    tr:hover {
+      background: #e6f0ff;
+    }
+
+    .btn-outline {
+      border: 1px solid #4A90E2;
+      color: #4A90E2;
+      padding: 5px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .btn-outline:hover {
+      background: #4A90E2;
+      color: white;
+    }
+
+    /* Mobile */
+    @media (max-width: 700px) {
+      .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 12px;
+        background: white;
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #333;
+      }
+
+      td:last-child {
+        border-bottom: none;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Sidebar Navigation -->
+  <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+  <aside class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-header">
+      <h2><i class="fas fa-bolt"></i> SwiftRemit</h2>
+      <button id="closeSidebar"><i class="fas fa-times"></i></button>
+    </div>
+    <ul class="mobile-menu">
+      <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li><a href="my-applications.html"><i class="fas fa-file-alt"></i> Submit Grant Appeal</a></li>
+      <li><a href="grants-submission.html"><i class="fas fa-list"></i> Your Pending Submissions</a></li>     
+      <li><a href="awaiting.html"><i class="fas fa-list"></i> Processing Grants</a></li>      <li><a href="approved.html"><i class="fas fa-list"></i> Approved Grants</a></li>
+      <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <button class="mobile-menu-btn" id="openSidebar"><i class="fas fa-bars"></i></button>
+
+  <main class="main-content">
+    <header class="main-header">
+      <h1>Welcome, <span id="userName">User</span></h1>
+      <p>Here is an overview of your grant applications.</p>
+    </header>
+
+    <section class="stats-cards">
+      <div class="card">
+        <h3>Total Submissions</h3>
+        <p id="totalSubmissions">0</p>
+      </div>
+      <div class="card">
+        <h3>Pending</h3>
+        <p id="pendingSubmissions">0</p>
+      </div>
+      <div class="card">
+        <h3>Approved</h3>
+        <p id="approvedSubmissions">0</p>
+      </div>
+      <div class="card">
+        <h3>Rejected</h3>
+        <p id="rejectedSubmissions">0</p>
+      </div>
+    </section>
+
+    <section class="submissions-table">
+      <div class="table-header">
+        <h2>My Grant Applications</h2>
+        <a href="my-applications.html" class="btn-primary"><i class="fas fa-plus"></i> New Appeal</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Grant Sector</th>
+            <th>Status</th>
+            <th>Submitted On</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="grantList">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const userNameEl = document.getElementById('userName');
+    const totalEl = document.getElementById('totalSubmissions');
+    const pendingEl = document.getElementById('pendingSubmissions');
+    const approvedEl = document.getElementById('approvedSubmissions');
+    const rejectedEl = document.getElementById('rejectedSubmissions');
+    const grantListEl = document.getElementById('grantList');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => window.location.href = 'login.html');
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = 'login.html';
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      userNameEl.textContent = userSnap.exists() ? (userSnap.data().firstName || "User") : "User";
+
+      const grantsQuery = query(collection(db, "grants"), where("uid", "==", user.uid));
+      const grantsSnapshot = await getDocs(grantsQuery);
+
+      let total = 0, pending = 0, approved = 0, rejected = 0;
+      grantListEl.innerHTML = "";
+
+      grantsSnapshot.forEach(docSnap => {
+        total++;
+        const data = docSnap.data();
+        const status = data.status || "Pending";
+        if (status === "Pending") pending++;
+        if (status === "Approved") approved++;
+        if (status === "Rejected") rejected++;
+
+        const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : "—";
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Grant Sector">${data.sector || data.occupation || "Untitled"}</td>
+          <td data-label="Status">${status}</td>
+          <td data-label="Submitted On">${date}</td>
+          <td data-label="Action"><a href="grants-submission.html?id=${docSnap.id}" class="btn-outline btn-sm">View</a></td>
+        `;
+        grantListEl.appendChild(row);
+      });
+
+      totalEl.textContent = total;
+      pendingEl.textContent = pending;
+      approvedEl.textContent = approved;
+      rejectedEl.textContent = rejected;
+    });
+
+    // Mobile sidebar toggle
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const mobileOverlay = document.getElementById('mobileNavOverlay');
+    const openBtn = document.getElementById('openSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+
+    openBtn.addEventListener('click', () => {
+      mobileSidebar.style.left = '0';
+      mobileOverlay.style.width = '100%';
+      mobileOverlay.style.opacity = '1';
+      mobileOverlay.style.visibility = 'visible';
+    });
+    function closeSidebar() {
+      mobileSidebar.style.left = '-250px';
+      mobileOverlay.style.width = '0';
+      mobileOverlay.style.opacity = '0';
+      mobileOverlay.style.visibility = 'hidden';
+    }
+    closeBtn.addEventListener('click', closeSidebar);
+    mobileOverlay.addEventListener('click', closeSidebar);
+  </script>
+</body>
+</html>

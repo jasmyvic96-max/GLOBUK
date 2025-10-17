@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/sign-up", "dest": "/signup.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/history", "dest": "/history.html" },
+    { "src": "/my-applications", "dest": "/my-applications.html" },
+    { "src": "/grants-submission", "dest": "/grants-submission.html" },
+    { "src": "/awaiting", "dest": "/awaiting.html" },
+    { "src": "/approved", "dest": "/approved.html" },
+    { "src": "/terms", "dest": "/terms.html" },
+    { "src": "/privacy", "dest": "/privacy.html" }
+  ]
+}

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout — GLOBUK</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg,#0b2540,#0f3b63 60%, #123a66); font-family:Inter,system-ui,Arial; min-height:100vh; color:white; }
+    .container { max-width:980px; margin:20px auto; padding:16px; }
+    .card { background: rgba(255,255,255,0.04); border-radius:12px; padding:18px; box-shadow: 0 8px 30px rgba(2,6,23,0.12); color: white; }
+    h1,h2 { margin:0 0 10px 0; color:white; }
+    .muted { color: rgba(255,255,255,0.75); font-size:0.95rem; margin-bottom:8px; }
+    .field { margin-bottom:12px; }
+    label { display:block; font-weight:600; margin-bottom:6px; color:#e6eefc; }
+    input[readonly], .readonly { background: rgba(255,255,255,0.03); color: #fff; padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06); }
+    input, textarea { width:100%; padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08); background:transparent; color:white; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .col { flex:1 1 220px; min-width:180px; }
+    .btn { display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; cursor:pointer; border:0; background:linear-gradient(45deg,#1e40af,#3b82f6); color:white; font-weight:600; text-decoration:none; }
+    .btn.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:white; }
+    .small { font-size:0.9rem; color: rgba(255,255,255,0.85); }
+    .alert { margin:12px 0; padding:12px; border-radius:8px; background:rgba(16,185,129,0.12); color:#a7f3d0; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Checkout — Grant Processing</h1>
+    <p class="muted">Review the selected grant and submit your grading via email. Your remarks will also be saved for tracking.</p>
+
+    <div id="loading" class="muted">Loading grant information…</div>
+
+    <div id="grantDetails" style="display:none; margin-top:12px;">
+      <h2 id="grantSector">—</h2>
+      <div class="muted" id="grantOccupation">—</div>
+
+      <div class="row" style="margin-top:12px;">
+        <div class="col">
+          <label>Requested Amount (GBP)</label>
+          <input id="requestedAmount" class="readonly" readonly />
+        </div>
+        <div class="col">
+          <label>Processing & Verification Fee (10%)</label>
+          <input id="feeAmount" class="readonly" readonly />
+        </div>
+      </div>
+
+      <form id="checkoutForm" style="margin-top:14px;">
+        <div class="field">
+          <label for="email">Your Email</label>
+          <input type="email" id="email" name="email" placeholder="e.g. user@example.com" required />
+          <small class="small">Email you are sending the grading from.</small>
+        </div>
+
+        <div class="field">
+          <label for="notes">Remarks / Notes (optional)</label>
+          <textarea id="notes" name="notes" rows="4" placeholder="Add any comments or observations"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+          <button type="button" id="sendEmailBtn" class="btn">Send Grading via Email</button>
+          <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
+        </div>
+      </form>
+
+      <div id="message" style="margin-top:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from './firebase.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const params = new URLSearchParams(window.location.search);
+const grantId = params.get('grantId');
+
+const loadingEl = document.getElementById('loading');
+const grantDetailsEl = document.getElementById('grantDetails');
+const grantSectorEl = document.getElementById('grantSector');
+const grantOccupationEl = document.getElementById('grantOccupation');
+const requestedAmountEl = document.getElementById('requestedAmount');
+const feeAmountEl = document.getElementById('feeAmount');
+const messageEl = document.getElementById('message');
+const cancelBtn = document.getElementById('cancelBtn');
+const sendEmailBtn = document.getElementById('sendEmailBtn');
+
+let currentUser = null;
+let currentGrant = null;
+
+function showMessage(text, success = true) {
+  messageEl.innerHTML = `<div class="alert">${text}</div>`;
+  if (!success) messageEl.style.background = 'rgba(255,120,120,0.08)';
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = 'login.html';
+  currentUser = user;
+
+  if (!grantId) {
+    loadingEl.textContent = 'No grant selected. Return to your applications and select a grant.';
+    return;
+  }
+
+  try {
+    const grantDocRef = doc(db, 'grants', grantId);
+    const grantSnap = await getDoc(grantDocRef);
+    if (!grantSnap.exists()) {
+      loadingEl.textContent = 'Grant not found.';
+      return;
+    }
+
+    currentGrant = grantSnap.data();
+    if (currentGrant.uid !== user.uid) {
+      loadingEl.textContent = 'You are not authorized to view this grant.';
+      return;
+    }
+
+    loadingEl.style.display = 'none';
+    grantDetailsEl.style.display = 'block';
+
+    grantSectorEl.textContent = currentGrant.sector || '—';
+    grantOccupationEl.textContent = currentGrant.occupation || '';
+    const requested = Number(currentGrant.amount || 0);
+    requestedAmountEl.value = `£${requested.toFixed(2)}`;
+    const fee = (requested * 0.15);
+    feeAmountEl.value = `£${fee.toFixed(2)}`;
+
+  } catch (err) {
+    console.error(err);
+    loadingEl.textContent = 'Error loading grant.';
+  }
+});
+
+// Cancel button
+cancelBtn.addEventListener('click', () => {
+  window.location.href = 'my-applications.html';
+});
+
+// Send Email button
+sendEmailBtn.addEventListener('click', async () => {
+  if (!currentGrant || !currentUser) return;
+
+  const notes = document.getElementById('notes').value.trim();
+  const fromEmail = document.getElementById('email').value.trim();
+  if (!fromEmail) return showMessage('Please enter your email.', false);
+
+  const requested = Number(currentGrant.amount || 0);
+  const fee = Number((requested * 0.15).toFixed(2));
+
+  // Save to Firebase
+  try {
+    showMessage('Submitting remarks — please wait...');
+
+    const submission = {
+      grantId: grantId,
+      uid: currentUser.uid,
+      email: fromEmail,
+      notes: notes || null,
+      fee: fee,
+      status: 'Awaiting',
+      createdAt: new Date().toISOString()
+    };
+
+    await addDoc(collection(db, 'assessments'), submission);
+    showMessage('Remarks saved! Preparing your email...');
+
+    // Open email client
+    const recipient = "grading@globuk.com";
+    const subject = encodeURIComponent(`Grading Submission - ${currentGrant.sector || 'Grant'}`);
+    const body = encodeURIComponent(
+      `Hello,\n\nI am submitting my grading for the grant in sector "${currentGrant.sector || '—'}".\n\nFrom: ${fromEmail}\nRemarks: ${notes || '(No remarks)'}\nProcessing Fee: £${fee}\n\nThank you.`
+    );
+
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+
+  } catch (err) {
+    console.error(err);
+    showMessage('Submission failed: ' + (err.message || 'unknown error'), false);
+  }
+});
+</script>
+</body>
+</html>

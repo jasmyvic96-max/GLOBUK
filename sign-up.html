@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - GLOBUK</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="signup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="index.html" class="logo">
+          <i class="fas fa-bank"></i>
+          <span>GLOBUK</span>
+        </a>
+      </div>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-outline">Back to Home</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Signup Form -->
+  <main class="signup-container">
+    <div class="signup-card">
+      <div class="signup-header">
+        <h1>Create Your Account</h1>
+        <p>Join over 2 million users who trust SwiftRemit</p>
+        <div class="progress-bar">
+          <div class="progress-step active" data-step="1">1</div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="2">2</div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="3">3</div>
+        </div>
+      </div>
+
+      <form id="signupForm" class="signup-form">
+        <!-- Step 1: Personal Information -->
+        <div class="form-step active" data-step="1">
+          <div class="step-header">
+            <h2>Personal Information</h2>
+            <p>Enter your full name as it appears on your ID</p>
+            <div class="warning-box">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Must match ID for future verification</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" name="firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" name="lastName" required>
+          </div>
+          <div class="form-navigation">
+            <button type="button" class="btn btn-primary btn-large next-step" data-next="2">
+              Next Step <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Contact & Security -->
+        <div class="form-step" data-step="2">
+          <div class="step-header">
+            <h2>Contact & Security</h2>
+            <p>Your contact information and login credentials</p>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" autocomplete="email" required>
+            <span class="field-hint">Used for login + transactional alerts</span>
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number *</label>
+            <div class="phone-input-group">
+              <select id="countryCode" name="countryCode" required>
+  
+ <  <option value="">Select Country</option>
+  <option value="+213">🇩🇿 Algeria (+213)</option>
+  <option value="+244">🇦🇴 Angola (+244)</option>
+  <option value="+229">🇧🇯 Benin (+229)</option>
+  <option value="+267">🇧🇼 Botswana (+267)</option>
+  <option value="+236">🇨🇫 Central African Republic (+236)</option>
+  <option value="+235">🇹🇩 Chad (+235)</option>
+  <option value="+225">🇨🇮 Ivory Coast (+225)</option>
+  <option value="+253">🇩🇯 Djibouti (+253)</option>
+  <option value="+241">🇬🇦 Gabon (+241)</option>
+  <option value="+220">🇬🇲 Gambia (+220)</option>
+  <option value="+233">🇬🇭 Ghana (+233)</option>
+  <option value="+224">🇬🇳 Guinea (+224)</option>
+  <option value="+245">🇬🇼 Guinea-Bissau (+245)</option>
+  <option value="+231">🇱🇷 Liberia (+231)</option>
+  <option value="+212">🇲🇦 Morocco (+212)</option>
+  <option value="+261">🇲🇬 Madagascar (+261)</option>
+  <option value="+265">🇲🇼 Malawi (+265)</option>
+  <option value="+223">🇲🇱 Mali (+223)</option>
+  <option value="+227">🇳🇪 Niger (+227)</option>
+  <option value="+234">🇳🇬 Nigeria (+234)</option>
+  <option value="+264">🇳🇦 Namibia (+264)</option>
+  <option value="+258">🇲🇿 Mozambique (+258)</option>
+  <option value="+250">🇷🇼 Rwanda (+250)</option>
+  <option value="+211">🇸🇸 South Sudan (+211)</option>
+  <option value="+27">🇿🇦 South Africa (+27)</option>
+  <option value="+249">🇸🇩 Sudan (+249)</option>
+  <option value="+232">🇸🇱 Sierra Leone (+232)</option>
+  <option value="+221">🇸🇳 Senegal (+221)</option>
+  <option value="+255">🇹🇿 Tanzania (+255)</option>
+  <option value="+256">🇺🇬 Uganda (+256)</option>
+  <option value="+260">🇿🇲 Zambia (+260)</option>
+  <option value="+263">🇿🇼 Zimbabwe (+263)</option>
+  <option value="+228">🇹🇬 Togo (+228)</option>
+  <option value="+266">🇱🇸 Lesotho (+266)</option>
+</select>
+                <!-- (list continues as needed) --><p> </p>
+              </select>
+              <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Phone number" required>
+            </div>
+            <span class="field-hint">Without the international dialing code</span>
+          </div>
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <div class="password-input-group">
+              <input type="password" id="password" name="password" required minlength="8">
+              <button type="button" class="password-toggle" onclick="togglePassword()">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <div class="password-strength">
+              <div class="strength-bar"><div class="strength-fill"></div></div>
+              <div class="strength-text">Password strength: <span id="strengthLevel">Weak</span></div>
+            </div>
+            <span class="field-hint">Minimum 8 characters</span>
+          </div>
+          <div class="form-navigation">
+            <button type="button" class="btn btn-outline prev-step" data-prev="1">
+              <i class="fas fa-arrow-left"></i> Previous
+            </button>
+            <button type="button" class="btn btn-primary next-step" data-next="3">
+              Next Step <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Verification Details -->
+        <div class="form-step" data-step="3">
+          <div class="step-header">
+            <h2>Verification Details</h2>
+            <p>Required for compliance and security</p>
+          </div>
+          <div class="form-group">
+            <label for="dateOfBirth">Date of Birth *</label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+            <span class="field-hint">Required by law (must be 18+)</span>
+          </div>
+          <div class="form-group">
+            <label for="countryOfResidence">Country of Residence *</label>
+            <select id="countryOfResidence" name="countryOfResidence" required>
+              <option value="">Select Country</option>
+            </select>
+            <span class="field-hint">Needed for local laws + currency availability</span>
+          </div>
+          <div class="form-group">
+            <label for="streetAddress">Street Address *</label>
+            <textarea id="streetAddress" name="streetAddress" rows="3" required></textarea>
+            <span class="field-hint">For identity verification and anti-fraud</span>
+          </div>
+          <div class="terms-checkbox">
+            <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+            <label for="agreeTerms">
+              I agree to the <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a>
+            </label>
+          </div>
+          <div class="form-navigation">
+            <button type="button" class="btn btn-outline prev-step" data-prev="2">
+              <i class="fas fa-arrow-left"></i> Previous
+            </button>
+            <button type="submit" class="btn btn-primary btn-large">
+              <i class="fas fa-user-plus"></i> Create Account
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="signup-footer">
+        <p>Already have an account? <a href="login.html">Sign In</a></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Track current step
+    let currentStep = 1;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeForm();
+      populateCountryList();
+      setupPasswordStrength();
+      updateProgressBar();
+    });
+
+    function initializeForm() {
+      // Next buttons
+      document.querySelectorAll('.next-step').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const nextStep = parseInt(this.getAttribute('data-next'));
+          if (validateCurrentStep()) {
+            goToStep(nextStep);
+          }
+        });
+      });
+      // Previous buttons
+      document.querySelectorAll('.prev-step').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const prevStep = parseInt(this.getAttribute('data-prev'));
+          goToStep(prevStep);
+        });
+      });
+      // Sync country code to country of residence
+      const countryCode = document.getElementById('countryCode');
+      if (countryCode) {
+        countryCode.addEventListener('change', function() {
+          const selectedOption = this.options[this.selectedIndex];
+          const countryData = selectedOption.getAttribute('data-country');
+          const countryResidence = document.getElementById('countryOfResidence');
+          if (countryData && countryResidence) {
+            countryResidence.value = countryData;
+          }
+        });
+      }
+    }
+
+    function goToStep(stepNumber) {
+      currentStep = stepNumber;
+      document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+      const targetStep = document.querySelector(`.form-step[data-step="${stepNumber}"]`);
+      if (targetStep) {
+        targetStep.classList.add('active');
+      }
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      document.querySelectorAll('.progress-step').forEach((step, index) => {
+        const stepNumber = index + 1;
+        step.classList.remove('active', 'completed');
+        if (stepNumber < currentStep) {
+          step.classList.add('completed');
+        } else if (stepNumber === currentStep) {
+          step.classList.add('active');
+        }
+      });
+    }
+
+    function validateCurrentStep() {
+      const currentStepEl = document.querySelector('.form-step.active');
+      const requiredFields = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+      let isValid = true;
+      requiredFields.forEach(input => {
+        if (!input.value.trim()) {
+          input.style.borderColor = '#ef4444';
+          isValid = false;
+        } else {
+          input.style.borderColor = '';
+        }
+      });
+      // Additional validations
+      if (currentStep === 2) {
+        const email = document.getElementById('email');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.value)) {
+          email.style.borderColor = '#ef4444';
+          showError('Please enter a valid email address');
+          isValid = false;
+        }
+        const password = document.getElementById('password');
+        if (password.value.length < 8) {
+          password.style.borderColor = '#ef4444';
+          showError('Password must be at least 8 characters long');
+          isValid = false;
+        }
+      }
+      if (currentStep === 3) {
+        const dateOfBirth = document.getElementById('dateOfBirth');
+        if (dateOfBirth.value) {
+          const birthDate = new Date(dateOfBirth.value);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          if (age < 18) {
+            dateOfBirth.style.borderColor = '#ef4444';
+            showError('You must be at least 18 years old to create an account');
+            isValid = false;
+          }
+        }
+        const agreeTerms = document.getElementById('agreeTerms');
+        if (!agreeTerms.checked) {
+          showError('Please accept the Terms of Service and Privacy Policy');
+          isValid = false;
+        }
+      }
+      return isValid;
+    }
+
+    function populateCountryList() {
+      const countries = [
+  { code: "DZ", name: "Algeria" },
+  { code: "AO", name: "Angola" },
+  { code: "BJ", name: "Benin" },
+  { code: "BW", name: "Botswana" },
+  { code: "BF", name: "Burkina Faso" },
+  { code: "BI", name: "Burundi" },
+  { code: "CV", name: "Cape Verde" },
+  { code: "CM", name: "Cameroon" },
+  { code: "CF", name: "Central African Republic" },
+  { code: "TD", name: "Chad" },
+  { code: "KM", name: "Comoros" },
+  { code: "CG", name: "Congo" },
+  { code: "CD", name: "Congo, Democratic Republic" },
+  { code: "CI", name: "Ivory Coast" },
+  { code: "DJ", name: "Djibouti" },
+  { code: "EG", name: "Egypt" },
+  { code: "GQ", name: "Equatorial Guinea" },
+  { code: "ER", name: "Eritrea" },
+  { code: "SZ", name: "Eswatini" },
+  { code: "ET", name: "Ethiopia" },
+  { code: "GA", name: "Gabon" },
+  { code: "GM", name: "Gambia" },
+  { code: "GH", name: "Ghana" },
+  { code: "GN", name: "Guinea" },
+  { code: "GW", name: "Guinea-Bissau" },
+  { code: "KE", name: "Kenya" },
+  { code: "LS", name: "Lesotho" },
+  { code: "LR", name: "Liberia" },
+  { code: "LY", name: "Libya" },
+  { code: "MG", name: "Madagascar" },
+  { code: "MW", name: "Malawi" },
+  { code: "ML", name: "Mali" },
+  { code: "MR", name: "Mauritania" },
+  { code: "MU", name: "Mauritius" },
+  { code: "MA", name: "Morocco" },
+  { code: "MZ", name: "Mozambique" },
+  { code: "NA", name: "Namibia" },
+  { code: "NE", name: "Niger" },
+  { code: "NG", name: "Nigeria" },
+  { code: "RW", name: "Rwanda" },
+  { code: "ST", name: "Sao Tome and Principe" },
+  { code: "SN", name: "Senegal" },
+  { code: "SC", name: "Seychelles" },
+  { code: "SL", name: "Sierra Leone" },
+  { code: "SO", name: "Somalia" },
+  { code: "ZA", name: "South Africa" },
+  { code: "SS", name: "South Sudan" },
+  { code: "SD", name: "Sudan" },
+  { code: "TZ", name: "Tanzania" },
+  { code: "TG", name: "Togo" },
+  { code: "TN", name: "Tunisia" },
+  { code: "UG", name: "Uganda" },
+  { code: "ZM", name: "Zambia" },
+  { code: "ZW", name: "Zimbabwe" }
+];
+
+      const countrySelect = document.getElementById('countryOfResidence');
+      countrySelect.innerHTML = '<option value="">Select Country</option>';
+      countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.code;
+        option.textContent = country.name;
+        countrySelect.appendChild(option);
+      });
+    }
+
+    function setupPasswordStrength() {
+      const passwordInput = document.getElementById('password');
+      const strengthFill = document.querySelector('.strength-fill');
+      const strengthLevel = document.getElementById('strengthLevel');
+      passwordInput.addEventListener('input', function() {
+        const strength = calculatePasswordStrength(this.value);
+        strengthFill.className = 'strength-fill ' + strength.level;
+        strengthLevel.textContent = strength.text;
+      });
+    }
+
+    function calculatePasswordStrength(password) {
+      let score = 0;
+      if (password.length >= 8) score++;
+      if (password.length >= 12) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+      if (score < 3) return { level: 'weak', text: 'Weak' };
+      if (score < 4) return { level: 'fair', text: 'Fair' };
+      if (score < 5) return { level: 'good', text: 'Good' };
+      return { level: 'strong', text: 'Strong' };
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.querySelector('.password-toggle i');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    function showError(message) {
+      const existingAlert = document.querySelector('.alert');
+      if (existingAlert) existingAlert.remove();
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-error';
+      alertDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${message}</span>`;
+      document.querySelector('.signup-card').insertBefore(alertDiv, document.querySelector('.signup-form'));
+      setTimeout(() => { alertDiv.remove(); }, 5000);
+    }
+
+    function showSuccess(message) {
+      const existingAlert = document.querySelector('.alert');
+      if (existingAlert) existingAlert.remove();
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-success';
+      alertDiv.innerHTML = `<i class="fas fa-check-circle"></i><span>${message}</span>`;
+      document.querySelector('.signup-card').insertBefore(alertDiv, document.querySelector('.signup-form'));
+    }
+  </script>
+
+  <!-- Firebase Authentication and Firestore Submission -->
+ <!-- Firebase Authentication and Firestore Submission -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAT3UxT2JUdSfdRmCuhTjm0DyC4pYAEOFw",
+    authDomain: "globuk.firebaseapp.com",
+    projectId: "globuk",
+    storageBucket: "globuk.firebasestorage.app",
+    messagingSenderId: "991996808937",
+    appId: "1:991996808937:web:e509e490fa01a9e644ea78",
+    measurementId: "G-5SPDK2HLV3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const signupForm = document.getElementById("signupForm");
+
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!validateCurrentStep()) return;
+
+    const formData = new FormData(signupForm);
+    const userData = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      phoneNumber: formData.get("countryCode") + formData.get("phoneNumber"),
+      countryCode: formData.get("countryCode"),
+      dateOfBirth: formData.get("dateOfBirth"),
+      countryOfResidence: formData.get("countryOfResidence"),
+      streetAddress: formData.get("streetAddress"),
+    };
+
+    try {
+      // Create user
+      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
+      const user = userCredential.user;
+
+      // Generate referral code
+      async function generateReferralCode(firstName) {
+        const prefix = "GLOBUK-";
+        const namePart = firstName ? firstName.slice(0, 2).toUpperCase() : "US";
+        let referralCode;
+        let exists = true;
+        while (exists) {
+          const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+          referralCode = `${prefix}${namePart}${randomPart}`;
+          const refDoc = await getDoc(doc(db, "referrals", referralCode));
+          if (!refDoc.exists()) exists = false;
+        }
+        return referralCode;
+      }
+
+      const referralCode = await generateReferralCode(userData.firstName);
+
+      // Save user in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        countryCode: userData.countryCode,
+        dateOfBirth: userData.dateOfBirth,
+        countryOfResidence: userData.countryOfResidence,
+        streetAddress: userData.streetAddress,
+        referralCode: referralCode,
+        balance: 0,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Save referral separately
+      await setDoc(doc(db, "referrals", referralCode), {
+        uid: user.uid,
+        createdAt: new Date().toISOString()
+      });
+
+      // Send verification email
+      await sendEmailVerification(user);
+
+      showSuccess("Account created successfully! Check your email to verify your account.");
+
+      // Redirect after 2.5s
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 2500);
+
+    } catch (error) {
+      console.error("Signup error:", error);
+      showError(error.message);
+    }
+  });
+</script>
+</body>
+</html>

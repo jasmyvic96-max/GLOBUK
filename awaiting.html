@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Awaiting Grants - GLOBUK</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { font-family: Inter, system-ui, Arial; background: linear-gradient(135deg,#0b2540,#0f3b63 60%, #123a66); color: white; min-height: 100vh; }
+    .container { max-width: 980px; margin: 20px auto; padding: 16px; }
+    .card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 18px; box-shadow: 0 8px 30px rgba(2,6,23,0.12); margin-bottom: 16px; }
+    h1,h2 { margin:0 0 10px 0; color:white; }
+    .muted { color: rgba(255,255,255,0.75); font-size:0.95rem; margin-bottom:8px; }
+    .alert { padding: 12px; border-radius: 8px; background: rgba(16,185,129,0.12); color: #a7f3d0; margin-top: 8px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .col { flex: 1 1 220px; min-width: 180px; }
+    .readonly { background: rgba(255,255,255,0.03); color: #fff; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Awaiting Grant Feedback</h1>
+    <p class="muted">These are the grants for which you have cleared the processing fee for. We'll get back to you within 2–5 working days.</p>
+
+    <div id="grantsContainer">
+      <!-- User's assessed grants will appear here -->
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const grantsContainer = document.getElementById('grantsContainer');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = 'login.html';
+
+      // Fetch all assessments submitted by this user
+      const assessmentsQuery = query(collection(db, "assessments"), where("uid", "==", user.uid));
+      const assessmentsSnapshot = await getDocs(assessmentsQuery);
+
+      if (assessmentsSnapshot.empty) {
+        grantsContainer.innerHTML = `<div class="alert">You have no submitted assessments yet.</div>`;
+        return;
+      }
+
+      for (const assessmentDoc of assessmentsSnapshot.docs) {
+        const assessment = assessmentDoc.data();
+        const grantId = assessment.grantId;
+
+        // Fetch corresponding grant info
+        const grantRef = doc(db, "grants", grantId);
+        const grantSnap = await getDoc(grantRef);
+
+        if (!grantSnap.exists()) continue;
+
+        const grant = grantSnap.data();
+
+        const requested = Number(grant.amount || 0);
+        const fee = (requested * 0.10).toFixed(2);
+
+        // Create card
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.innerHTML = `
+          <h2>${grant.sector || '—'}</h2>
+          <div class="muted">${grant.occupation || ''}</div>
+          <div class="row">
+            <div class="col">
+              <label>Requested Amount</label>
+              <input class="readonly" readonly value="£${requested.toFixed(2)}">
+            </div>
+            <div class="col">
+              <label>Processing Fee</label>
+              <input class="readonly" readonly value="£${fee}">
+            </div>
+          </div>
+          <div class="alert">Your assessment has been submitted. You will receive an email from us when your grant is approved
+                    <div class="alert">it takes 2-5 business days.</div> </div>
+        `;
+        grantsContainer.appendChild(card);
+      }
+    });
+  </script>
+</body>
+</html>
