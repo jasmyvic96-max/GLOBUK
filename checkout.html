@@ -170,7 +170,7 @@ sendEmailBtn.addEventListener('click', async () => {
     showMessage('Remarks saved! Preparing your email...');
 
     // Open email client
-    const recipient = "grading@globuk.com";
+    const recipient = "help.globuk@gmail.com";
     const subject = encodeURIComponent(`Grading Submission - ${currentGrant.sector || 'Grant'}`);
     const body = encodeURIComponent(
       `Hello,\n\nI am submitting my grading for the grant in sector "${currentGrant.sector || '—'}".\n\nFrom: ${fromEmail}\nRemarks: ${notes || '(No remarks)'}\nProcessing Fee: £${fee}\n\nThank you.`
