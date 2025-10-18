@@ -126,7 +126,7 @@
 
       try {
         // Query grants where uid == user.uid and status == "Approved"
-        const grantsQuery = query(collection(db, 'grants'), where('uid', '==', user.uid), where('status', '==', 'Approved'));
+        const grantsQuery = query(collection(db, 'assessments'), where('uid', '==', user.uid), where('status', '==', 'Approved'));
         const snapshot = await getDocs(grantsQuery);
 
         loadingEl.style.display = 'none';
