@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Approved Grant Details — GLOBUK</title>
+  <title>Approved Grant Receipt — GLOBUK</title>
   <link rel="stylesheet" href="dashboard.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    body { font-family: Inter, Arial; background: linear-gradient(135deg,#0b2540,#0f3b63 60%, #123a66); color: #e6eefc; margin: 0; min-height: 100vh; }
-    .wrap { max-width: 700px; margin: 28px auto; padding: 16px; }
-    h1 { margin:0 0 12px 0; font-size:1.5rem; }
-    .muted { color: rgba(255,255,255,0.78); margin-bottom:8px; }
-    .card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgba(2,6,23,0.12); border:1px solid rgba(255,255,255,0.03); margin-top:16px; }
-    .card h2 { margin-top:0; font-size:1.2rem; color:#3b82f6; }
-    .row { display:flex; justify-content:space-between; margin:6px 0; flex-wrap:wrap; }
-    .label { font-weight:500; color: rgba(255,255,255,0.65); }
+    body { font-family: Inter, Arial; background: linear-gradient(135deg,#0b2540,#0f3b63 60%, #123a66); color: #e6eefc; margin:0; min-height:100vh; }
+    .wrap { max-width: 720px; margin: 28px auto; padding: 16px; }
+    h1 { margin-bottom:12px; font-size:1.6rem; }
+    .muted { color: rgba(255,255,255,0.7); margin-bottom:8px; }
+    .card { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(2,6,23,0.15); border:1px solid rgba(255,255,255,0.04); margin-top:16px; }
+    .card h2 { margin-top:0; font-size:1.3rem; color:#3b82f6; }
+    .row { display:flex; justify-content:space-between; margin:8px 0; flex-wrap:wrap; }
+    .label { font-weight:500; color: rgba(255,255,255,0.6); }
     .value { font-weight:600; color:#e6eefc; margin-left:8px; }
-    .status { margin-top:12px; padding:6px 10px; display:inline-block; border-radius:8px; background: rgba(59,130,246,0.12); color:#dbeafe; font-weight:600; }
-    a.btn { display:inline-flex; align-items:center; gap:6px; background: linear-gradient(45deg,#1e40af,#3b82f6); color:white; padding:8px 12px; border-radius:8px; font-weight:600; text-decoration:none; margin-top:16px; }
+    .status { margin-top:16px; padding:8px 12px; display:inline-block; border-radius:8px; background: rgba(59,130,246,0.12); color:#dbeafe; font-weight:700; font-size:0.95rem; }
+    a.btn { display:inline-flex; align-items:center; gap:6px; background: linear-gradient(45deg,#1e40af,#3b82f6); color:white; padding:10px 16px; border-radius:8px; font-weight:600; text-decoration:none; margin-top:20px; }
+    .receipt-header { text-align:center; margin-bottom:20px; }
+    .receipt-header h2 { font-size:1.5rem; margin-bottom:4px; }
+    .receipt-header .muted { font-size:0.95rem; }
+    .divider { height:1px; background: rgba(255,255,255,0.1); margin:16px 0; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Approved Grant Details</h1>
+    <div class="receipt-header">
+      <h2>Approved Grant Receipt</h2>
+      <div class="muted">This is your official record for the approved grant.</div>
+    </div>
+
     <div id="loading" class="muted">Loading grant details…</div>
     <div id="grantCard" class="card" style="display:none;"></div>
     <div id="error" class="muted" style="display:none;">Error loading grant. Please check your link or try again.</div>
+
     <a href="approved.html" class="btn"><i class="fas fa-arrow-left"></i> Back to Approved Grants</a>
   </div>
 
@@ -40,8 +49,7 @@
     const errorEl = document.getElementById('error');
 
     function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+      return new URLSearchParams(window.location.search).get(param);
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -55,17 +63,8 @@
       }
 
       try {
-        const assessmentRef = doc(db, 'assessments', grantId);
-        const assessmentSnap = await getDoc(assessmentRef);
-
-        if (!assessmentSnap.exists() || assessmentSnap.data().uid !== user.uid || assessmentSnap.data().status !== 'Approved') {
-          loadingEl.style.display = 'none';
-          errorEl.style.display = 'block';
-          return;
-        }
-
-        const data = assessmentSnap.data();
-        const grantRef = doc(db, 'grants', data.grantId);
+        // Fetch the grant from grants collection
+        const grantRef = doc(db, 'grants', grantId);
         const grantSnap = await getDoc(grantRef);
 
         if (!grantSnap.exists()) {
@@ -75,20 +74,28 @@
         }
 
         const grant = grantSnap.data();
+        if (grant.uid !== user.uid || grant.status !== 'Approved') {
+          loadingEl.style.display = 'none';
+          errorEl.style.display = 'block';
+          return;
+        }
+
         const requested = Number(grant.amount || 0);
         const fee = Number(requested * 0.10);
         const netReceived = requested - fee;
-        const submittedAt = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : '—';
-        const disbursementNote = data.disbursementNote || 'Disbursement instructions will appear here when available.';
-        const cryptoTx = data.cryptoTx || '—';
+        const submittedAt = grant.createdAt?.toDate ? grant.createdAt.toDate().toLocaleDateString() : '—';
+        const disbursementNote = grant.disbursementNote || 'Disbursement instructions will appear here when available.';
+        const cryptoTx = grant.cryptoTx || '—';
 
         grantCard.innerHTML = `
           <h2>${grant.sector || grant.occupation || 'Grant'}</h2>
           <div class="row"><span class="label">Grant ID:</span><span class="value">${grantId}</span></div>
           <div class="row"><span class="label">Submitted:</span><span class="value">${submittedAt}</span></div>
+          <div class="divider"></div>
           <div class="row"><span class="label">Requested Amount:</span><span class="value">£${requested.toLocaleString()}</span></div>
           <div class="row"><span class="label">Processing Fee Paid:</span><span class="value">£${fee.toLocaleString()}</span></div>
           <div class="row"><span class="label">Net Amount Received:</span><span class="value">£${netReceived.toLocaleString()}</span></div>
+          <div class="divider"></div>
           <div class="row"><span class="label">Disbursement Notes:</span><span class="value">${disbursementNote}</span></div>
           <div class="row"><span class="label">Transaction Reference:</span><span class="value">${cryptoTx}</span></div>
           <div class="status">Approved</div>
