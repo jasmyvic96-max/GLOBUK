@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Approved Grants — GLOBUK</title>
 
   <link rel="stylesheet" href="dashboard.css">
@@ -10,21 +10,29 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    body { margin:0; min-height:100vh; background:linear-gradient(135deg,#0b2540,#0f3b63 60%, #123a66); color:#e6eefc; font-family:Inter,Arial; }
+    :root{
+      --bg:#0b2540; --bg2:#0f3b63;
+      --text:#e6eefc; --muted:rgba(255,255,255,0.78); --accent:#3b82f6;
+    }
+    body{ margin:0; min-height:100vh; background:linear-gradient(135deg,var(--bg),var(--bg2) 60%, #123a66); color:var(--text); font-family:Inter, Arial, system-ui; }
     .wrap{max-width:980px;margin:22px auto;padding:16px;}
-    .nav-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+    .nav-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
     h1{font-size:1.4rem;margin:0}
-    .muted{color:rgba(255,255,255,0.78); margin-top:6px;}
+    .muted{color:var(--muted); margin-top:6px;}
     .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-top:16px; }
-    .grant-card { background: rgba(255,255,255,0.03); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(2,6,23,0.12); border:1px solid rgba(255,255,255,0.03); }
-    .g-title { font-size:1rem; font-weight:600; margin-bottom:6px; }
-    .g-meta { font-size:0.9rem; color:rgba(255,255,255,0.78); margin-bottom:6px; }
-    .g-amount { font-weight:700; color:#3b82f6; }
-    .g-status { padding:6px 8px; border-radius:8px; font-size:0.85rem; background:rgba(59,130,246,0.12); color:#dbeafe; display:inline-block; margin-top:6px; }
-    .actions { margin-top:10px; }
+    .grant-card { background: rgba(255,255,255,0.03); border-radius:12px; padding:16px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 6px 18px rgba(2,6,23,0.12);}
+    .grant-row { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .g-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .g-meta { font-size:0.9rem; color:var(--muted); margin-bottom:6px; }
+    .g-amount { font-weight:700; color:var(--accent); }
+    .g-status { padding:6px 8px; border-radius:8px; font-size:0.85rem; background:rgba(59,130,246,0.12); color:#dbeafe; display:inline-block; }
+    .actions { margin-top:8px; display:flex; gap:8px; }
     .btn { background:linear-gradient(45deg,#1e40af,#3b82f6); color:white; padding:8px 10px; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.9rem; display:inline-flex; gap:8px; align-items:center; }
-    .empty { margin-top:30px; text-align:center; padding:28px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); }
-    @media(max-width:640px){ .grid{grid-template-columns:1fr;} }
+    .btn.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text); }
+    .empty { margin-top:30px; border-radius:12px; padding:28px; text-align:center; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); }
+    .empty h2 { margin:8px 0 6px; font-size:1.2rem; color:#eaf4ff; }
+    .empty p { color:var(--muted); max-width:680px; margin:0 auto 12px; }
+    @media (max-width:640px){ .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -32,33 +40,28 @@
     <div class="nav-row">
       <div>
         <h1>Approved Grants</h1>
-        <div class="muted">Grants that have been approved and fully disbursed.</div>
+        <div class="muted">Grants that have been approved. Click "View" to see full details.</div>
       </div>
       <div>
-        <a href="dashboard.html" class="btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <a href="dashboard.html" class="btn secondary"><i class="fas fa-arrow-left"></i> Back</a>
       </div>
     </div>
 
-    <div id="content">
-      <div id="loading" class="muted">Loading approved grants…</div>
-      <div id="results" style="display:none;">
-        <div id="grid" class="grid"></div>
-        <div id="emptyState" class="empty" style="display:none;">
-          <h2>No approved grants yet</h2>
-          <p>You don't have any approved grants yet. Once approved, they will appear here with all details.</p>
-          <a href="awaiting.html" class="btn"><i class="fas fa-file-alt"></i> View Processing Grants</a>
-        </div>
-      </div>
+    <div id="loading" class="muted">Loading approved grants…</div>
+    <div id="grid" class="grid" style="display:none;"></div>
+    <div id="emptyState" class="empty" style="display:none;">
+      <h2>No approved grants yet</h2>
+      <p>You don't have any approved grants at the moment. Once an application is approved it will appear here.</p>
+      <a href="awaiting.html" class="btn"><i class="fas fa-file-alt"></i> View your processing grants</a>
     </div>
   </div>
 
   <script type="module">
     import { auth, db } from './firebase.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     const loadingEl = document.getElementById('loading');
-    const resultsEl = document.getElementById('results');
     const gridEl = document.getElementById('grid');
     const emptyEl = document.getElementById('emptyState');
 
@@ -66,44 +69,42 @@
       if (!user) return window.location.href = 'login.html';
 
       try {
-        // Query assessments that are approved
-        const q = query(collection(db, 'assessments'), where('uid', '==', user.uid), where('status', '==', 'Approved'));
-        const snapshot = await getDocs(q);
+        const grantsQuery = query(collection(db, 'grants'), where('uid', '==', user.uid), where('status', '==', 'Approved'));
+        const snapshot = await getDocs(grantsQuery);
 
         loadingEl.style.display = 'none';
-        resultsEl.style.display = 'block';
+        gridEl.style.display = 'block';
 
         if (snapshot.empty) {
+          gridEl.style.display = 'none';
           emptyEl.style.display = 'block';
           return;
         }
 
-        snapshot.forEach(async docSnap => {
+        snapshot.forEach(docSnap => {
           const data = docSnap.data();
-          const assessmentId = docSnap.id;
-
-          // Fetch the original grant data for correct amounts
-          const grantRef = doc(db, 'grants', data.grantId);
-          const grantSnap = await getDoc(grantRef);
-          if (!grantSnap.exists()) return;
-
-          const grant = grantSnap.data();
-          const requested = Number(grant.amount || 0);
-          const fee = Number(requested * 0.10);
-          const netReceived = requested - fee;
-          const createdAt = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : '—';
-          const disbursementNote = data.disbursementNote || 'Disbursement instructions will appear here when available.';
+          const id = docSnap.id;
+          const title = data.sector || data.occupation || 'Grant';
+          const amount = Number(data.amount || 0).toFixed(2);
+          const fee = (amount * 0.10).toFixed(2);
 
           const card = document.createElement('div');
           card.className = 'grant-card';
           card.innerHTML = `
-            <div class="g-title">${grant.sector || grant.occupation || 'Grant'}</div>
-            <div class="g-meta">Submitted: ${createdAt}</div>
-            <div class="g-meta">Grant ID: <span style="font-family:monospace;color:var(--muted)">${assessmentId}</span></div>
-            <div class="g-meta">Requested Amount: £${requested.toLocaleString()}</div>
-            <div class="g-meta">Processing Fee Paid: £${fee.toLocaleString()}</div>
-            <div class="g-meta">Net Amount Received: £${netReceived.toLocaleString()}</div>
-            <div class="g-meta">${disbursementNote}</div>
+            <div class="grant-row">
+              <div style="flex:1">
+                <div class="g-title">${title}</div>
+                <div class="g-meta">Requested: £${amount}</div>
+                <div class="g-meta">Processing Fee Paid: £${fee}</div>
+                <div class="g-meta">ID: <span style="font-family:monospace;color:var(--muted)">${id}</span></div>
+              </div>
+              <div style="text-align:right">
+                <div class="g-status">Approved</div>
+              </div>
+            </div>
+            <div class="actions">
+              <a class="btn" href="approved-detail.html?id=${id}"><i class="fas fa-eye"></i> View</a>
+            </div>
           `;
           gridEl.appendChild(card);
         });
